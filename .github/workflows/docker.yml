@@ -1,0 +1,42 @@
+name: Docker smoke test
+
+on:
+  push:
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "entrypoint.sh"
+      - "pyproject.toml"
+      - "apps/**"
+      - "src/**"
+      - ".github/workflows/docker.yml"
+  pull_request:
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "entrypoint.sh"
+      - "pyproject.toml"
+      - "apps/**"
+      - "src/**"
+      - ".github/workflows/docker.yml"
+
+jobs:
+  docker-smoke-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build Docker image
+        run: docker build -t porepy-equilibration:ci .
+
+      - name: Run apps.example1 smoke test
+        run: |
+          mkdir -p visualization
+          docker run --rm \
+            -v "$PWD/visualization:/work/visualization" \
+            porepy-equilibration:ci
