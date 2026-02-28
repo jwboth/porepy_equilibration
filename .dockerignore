@@ -1,0 +1,38 @@
+# ----- Python cache -----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# ----- Virtual environments -----
+.venv/
+venv/
+env/
+
+# ----- Build / distribution -----
+*.egg-info/
+dist/
+build/
+
+# ----- Test & coverage -----
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ----- Editor / IDE -----
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ----- OS -----
+.DS_Store
+Thumbs.db
+
+# ----- Output that should not be baked into the image -----
+visualization/
+
+# ----- CI / tooling caches -----
+.ruff_cache/
+.mypy_cache/
