@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "porepy-equilibration"
+version = "0.1.0"
+description = "Consistent initialization of mixed-dimensional multiphysics models for fractured reservoirs under geomechanical constraints and field measurements"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = [
+    "porepy",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/porepy_equilibration", "apps/example1"]
+
+[tool.uv.sources]
+porepy = { path = "external/porepy", editable = true }
