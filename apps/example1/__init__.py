@@ -3,15 +3,24 @@
 from __future__ import annotations
 
 import porepy as pp
-
+from porepy.viz.data_saving_model_mixin import IterationExporting
+# from porepy_equilibration.bc import TensileBackgroundStress2D as BC
+from porepy_equilibration.bc import GradualTensileBackgroundStress2D as BC
 from porepy_equilibration.geometry import SaltCove as Geometry
-from porepy_equilibration.bc import TensileBackgroundStress2D as BC
-
-# from porepy_equilibration.model import MechanicsModelWithReference as Physics
 from porepy_equilibration.model import MechanicsModel as Physics
 
+# from porepy_equilibration.bc import RotatingTensileBackgroundStress2D as BC
 
-class Model(Geometry, BC, Physics):
+# from porepy_equilibration.model import MechanicsModelWithReference as Physics
+
+
+
+class Model(
+    # IterationExporting,
+    Geometry,
+    BC,
+    Physics,
+):
     """Model for the 2D Salt Cove outcrop simulation under compression."""
 
 
@@ -56,6 +65,7 @@ def define_model_params():
         ),
         "units": pp.Units(kg=16.8 * pp.GIGA, m=1.0, s=1.0),
         "solver_statistics_file": "solver_statistics.json",
+        "folder_name": "output/example1",
     }
 
 
