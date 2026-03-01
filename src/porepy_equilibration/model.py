@@ -1,13 +1,13 @@
-from porepy.models.with_reference.fluid_mass_balance import (
+from porepy_equilibration.porepy.fluid_mass_balance import (
     SinglePhaseFlow as SinglePhaseFlowWithReference,
 )
-from porepy.models.with_reference.momentum_balance import (
+from porepy_equilibration.porepy.momentum_balance import (
     MomentumBalance as MomentumBalanceWithReference,
 )
-from porepy.models.with_reference.poromechanics import (
+from porepy_equilibration.porepy.poromechanics import (
     Poromechanics as PoromechanicsWithReference,
 )
-from porepy.models.with_reference.solution_strategy import (
+from porepy_equilibration.porepy.solution_strategy import (
     NewtonReferenceUpdateStrategy as UpdateStrategy,
 )
 from porepy.viz.data_saving_model_mixin import FractureDeformationExporting
