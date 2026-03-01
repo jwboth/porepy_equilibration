@@ -26,13 +26,21 @@ class SaltCove:
         self.create_fracture_network()
         self._fractures = self.fracture_network.fractures
 
+    def _csv_file_path(self) -> Path:
+        """Get the path to the CSV geometry file."""
+        return Path(__file__).parent / "data" / "salt_cove_fractures.csv"
+
     def create_fracture_network(self) -> None:
         """Set the fracture network from the CSV geometry file."""
-        # start path from parent of this current file
-        csv_geometry_file = Path(__file__).parent / "data" / "salt_cove_fractures.csv"
+        csv_geometry_file = self._csv_file_path()
         expected_domain_size = 1000
         self.fracture_network = pp.fracture_importer.network_from_csv(
             Path(csv_geometry_file),
             has_domain=True,
             tol=expected_domain_size * 1e-6,
         )
+
+class SaltCoveVertical(SaltCove):
+    def _csv_file_path(self) -> Path:
+        """Get the path to the CSV geometry file."""
+        return Path(__file__).parent / "data" / "salt_cove_fractures_vertical.csv"
