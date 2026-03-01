@@ -16,6 +16,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libxrandr2 \
         libxext6 \
         libxfixes3 \
+        libxft2 \
+        libxss1 \
+        libxau6 \
+        libxdmcp6 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv (fast Python package manager)
