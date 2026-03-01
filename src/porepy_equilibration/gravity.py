@@ -233,3 +233,21 @@ class Gravity(
                     * boundary_grid.cell_volumes[north_others]
                 )
         return vals.ravel("F")
+
+
+class GradualGravity(Gravity):
+    """Gravity BC with gradual onset, where the background stress is scaled by time manager's time value."""
+
+    def horizontal_background_stress(self, grid: pp.Grid) -> np.ndarray:
+        """Zero horizontal background stress."""
+        s_v = self.vertical_background_stress(grid)
+        s_h = np.zeros((self.nd - 1, self.nd - 1, grid.num_cells))
+        loading_step = min(
+            1.0,
+            (self.time_manager.time - self.time_manager.dt_init)
+            / (self.time_manager.time_final - self.time_manager.dt_init),
+        )
+        scaling = 1.0 - loading_step * 0.75
+        for i, j in np.ndindex(self.nd - 1, self.nd - 1):
+            s_h[i, j] = scaling * s_v
+        return s_h
