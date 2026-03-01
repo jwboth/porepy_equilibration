@@ -7,6 +7,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
         build-essential \
         libglu1-mesa \
+        libgl1 \
+        libx11-6 \
+        libxrender1 \
+        libxi6 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv (fast Python package manager)
