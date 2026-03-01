@@ -37,6 +37,6 @@ jobs:
       - name: Run apps.example1 smoke test
         run: |
           docker run --rm \
-            --entrypoint python \
+            --entrypoint /work/.venv/bin/python \
             porepy-equilibration:ci \
             -c "import porepy as pp; import porepy_equilibration; print('imports OK')"
