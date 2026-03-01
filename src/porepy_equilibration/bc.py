@@ -154,3 +154,77 @@ class TensileBackgroundStress2D:
                     * boundary_grid.cell_volumes[north_others]
                 )
         return vals.ravel("F")
+
+
+class GradualTensileBackgroundStress2D(TensileBackgroundStress2D):
+    """Same as TensileBackgroundStress2D, but with gradual strength of the
+    background stress over time.
+
+    """
+
+    time_manager: pp.TimeManager
+    params: dict
+
+    def background_stress(self, grid: pp.Grid) -> np.ndarray:
+        s = np.zeros((self.nd, self.nd, grid.num_cells))
+        bx = self.params["bc"]["background_stress"][0]
+        by = self.params["bc"]["background_stress"][1]
+        bxy = (
+            self.params["bc"]["background_stress"][2]
+            if len(self.params["bc"]["background_stress"]) == 3
+            else 0.0
+        )
+        loading_step = min(
+            1.0, 2.0 * self.time_manager.time / self.time_manager.time_final
+        )
+        by *= loading_step
+        # Add 10% noise to shear components of the background stress.
+        if loading_step < 1.0 and not np.isclose(loading_step, 1.0):
+            noise = by * 0.1 * np.random.rand(grid.num_cells)  # Add up to 10% noise
+            bxy += noise
+        else:
+            print("No noise")
+        s[0, 0] = self.units.convert_units(bx, "Pa")
+        s[1, 1] = self.units.convert_units(by, "Pa")
+        s[0, 1] = self.units.convert_units(bxy, "Pa")
+        s[1, 0] = self.units.convert_units(bxy, "Pa")
+        return s
+
+
+class RotatingTensileBackgroundStress2D(TensileBackgroundStress2D):
+    """Same as TensileBackgroundStress2D, but with gradual strength of the
+    background stress over time.
+
+    """
+
+    time_manager: pp.TimeManager
+    params: dict
+
+    def background_stress(self, grid: pp.Grid) -> np.ndarray:
+        s = np.zeros((self.nd, self.nd, grid.num_cells))
+        _bx = self.params["bc"]["background_stress"][0]
+        _by = self.params["bc"]["background_stress"][1]
+        _bxy = (
+            self.params["bc"]["background_stress"][2]
+            if len(self.params["bc"]["background_stress"]) == 3
+            else 0.0
+        )
+        loading_step = self.time_manager.time_index
+        angle_ratios = [0.0, 0.25, 0.5, 0.75, 1.0, 0.75, 0.5, 0.25, 0.0, 0.0]
+        angle = (
+            angle_ratios[loading_step - 1] * np.pi / 4
+        )  # Rotate up to 45 degrees and back
+        bx = _bx * np.cos(angle) - _by * np.sin(angle)
+        by = _bx * np.sin(angle) + _by * np.cos(angle)
+        bxy = _bxy
+        print()
+        print(
+            f"Loading step {loading_step}, rotation angle: {np.degrees(angle):.1f} degrees"
+        )
+        print(f"Background stress components: bx={bx:.2e}, by={by:.2e}, bxy={bxy:.2e}")
+        print()
+        s[0, 0] = self.units.convert_units(bx, "Pa")
+        s[1, 1] = self.units.convert_units(by, "Pa")
+        s[0, 1] = self.units.convert_units(bxy, "Pa")
+        s[1, 0] = self.units.convert_units(bxy, "Pa")
+        return s
