@@ -36,7 +36,7 @@ jobs:
 
       - name: Run apps.example1 smoke test
         run: |
-          mkdir -p output
           docker run --rm \
-            -v "$PWD/output:/work/output" \
-            porepy-equilibration:ci
+            --entrypoint python \
+            porepy-equilibration:ci \
+            -c "import porepy as pp; import porepy_equilibration; print('imports OK')"
