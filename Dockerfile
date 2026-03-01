@@ -11,6 +11,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libx11-6 \
         libxrender1 \
         libxi6 \
+        libxcursor1 \
+        libxinerama1 \
+        libxrandr2 \
+        libxext6 \
+        libxfixes3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv (fast Python package manager)
