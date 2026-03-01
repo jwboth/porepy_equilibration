@@ -1,36 +1,78 @@
-import porepy as pp
-from porepy.viz.data_saving_model_mixin import (
-    FractureDeformationExporting,
-    IterationExporting,
-)
+from porepy.models.with_reference.fluid_mass_balance import \
+    SinglePhaseFlow as SinglePhaseFlowWithReference
+from porepy.models.with_reference.momentum_balance import \
+    MomentumBalance as MomentumBalanceWithReference
+from porepy.models.with_reference.poromechanics import \
+    Poromechanics as PoromechanicsWithReference
+from porepy.models.with_reference.solution_strategy import \
+    NewtonReferenceUpdateStrategy as UpdateStrategy
+from porepy.viz.data_saving_model_mixin import FractureDeformationExporting
 
-from porepy.models.with_reference.momentum_balance import (
-    MomentumBalance as MomentumBalanceWithReference,
-)
+import porepy as pp
 
 from .auxiliary import AuxiliaryContact
-from .fracture_states import FractureStates
 from .contact import AlartCurnierContact
+from .contact_mechanics_bipotential import BipotentialOrthogonalReturnContact
+from .fracture_states import FractureStates
 
 
-class MechanicsModel(
+class CommonIngredients(
     AuxiliaryContact,  # Yield function, orthognality, and alignment
     FractureStates,  # physics-based conact states and their logging
     FractureDeformationExporting,
-    IterationExporting,
     pp.constitutive_laws.CharacteristicDisplacementFromTraction,
-    AlartCurnierContact,
+):
+    """Common ingredients for mechanics and poromechanics models."""
+
+
+class MechanicsModel(
+    # AlartCurnierContact,
+    # BipotentialOrthogonalReturnContact,
+    CommonIngredients,
     pp.momentum_balance.MomentumBalance,
 ):
     """Base mechanics model."""
 
 
 class MechanicsModelWithReference(
-    AuxiliaryContact,  # Yield function, orthognality, and alignment
-    FractureDeformationExporting,
-    FractureStates,  # physics-based conact states and their logging
-    pp.constitutive_laws.CharacteristicDisplacementFromTraction,
-    AlartCurnierContact,
+    # AlartCurnierContact,
+    BipotentialOrthogonalReturnContact,
+    CommonIngredients,
+    UpdateStrategy,
     MomentumBalanceWithReference,
 ):
     """Base mechanics model with reference state."""
+
+
+class PoromechanicsModel(
+    CommonIngredients,
+    pp.constitutive_laws.CubicLawPermeability,
+    # AlartCurnierContact,
+    BipotentialOrthogonalReturnContact,
+    pp.poromechanics.Poromechanics,
+):
+    """Base poromechanics model."""
+
+
+class PoromechanicsModelWithReference(
+    CommonIngredients,
+    pp.constitutive_laws.CubicLawPermeability,
+    # AlartCurnierContact,
+    BipotentialOrthogonalReturnContact,
+    UpdateStrategy,
+    PoromechanicsWithReference,
+):
+    """Base mechanics model with reference."""
+
+
+class FlowModel(
+    pp.SinglePhaseFlow,
+):
+    """Base flow model."""
+
+
+class FlowModelWithReference(
+    UpdateStrategy,
+    SinglePhaseFlowWithReference,
+):
+    """Base flow model with reference state."""
