@@ -6,11 +6,13 @@ import argparse
 import porepy as pp
 from porepy.applications.material_values.fluid_values import water
 from porepy_equilibration.geometry import SaltCoveVertical as Geometry
+from porepy_equilibration.gravity import GradualGravity
 from porepy_equilibration.gravity import Gravity
 from porepy_equilibration.model import PoromechanicsModel as PoromechanicsNoRef
 from porepy_equilibration.model import (
     PoromechanicsModelWithReference as PoromechanicsWithRef,
 )
+from porepy_equilibration.solver_statistics import CustomSolverStatistics
 
 
 class InitMech:
@@ -35,9 +37,7 @@ class InitMech:
         return combined_eq
 
 
-def create_model_class(
-    use_reference_states: bool,
-) -> type:
+def create_model_class(use_reference_states: bool, use_gradual_bc: bool) -> type:
     """Factory function to create model class with selected physics.
 
     Parameters:
@@ -52,7 +52,14 @@ def create_model_class(
     else:
         physics_class = PoromechanicsNoRef
 
-    class Model(InitMech, Geometry, Gravity, physics_class):
+    if use_gradual_bc:
+        gravity_class = GradualGravity
+    else:
+        gravity_class = Gravity
+
+    class Model(
+        InitMech, Geometry, CustomSolverStatistics, gravity_class, physics_class
+    ):
         """Model for 2D Salt Cove outcrop under gravity."""
 
         pass
@@ -60,7 +67,14 @@ def create_model_class(
     return Model
 
 
-def define_model_params() -> dict:
+def create_folder_name(use_reference_states: bool, use_gradual_bc: bool) -> str:
+    """Create folder name based on selected options."""
+    ref_str = "with_ref" if use_reference_states else "no_ref"
+    bc_str = "gradual_bc" if use_gradual_bc else "instant_bc"
+    return f"output/example2_{ref_str}_{bc_str}"
+
+
+def define_model_params(use_reference_states: bool, use_gradual_bc: bool) -> dict:
     """Define hardcoded model parameters."""
     return {
         "csv_file": "salt_cove_fractures.csv",
@@ -97,8 +111,8 @@ def define_model_params() -> dict:
             iter_max=100,
         ),
         "units": pp.Units(kg=16.8 * pp.GIGA, m=1.0, s=1.0),
-        "solver_statistics_file": "solver_statistics.json",
-        "folder_name": "output/example2",
+        "solver_statistics_file_name": "solver_statistics.json",
+        "folder_name": create_folder_name(use_reference_states, use_gradual_bc),
     }
 
 
@@ -130,24 +144,35 @@ def main():
         default=False,
         help="Use physics model without reference states.",
     )
+    parser.add_argument(
+        "--gradual-bc",
+        action="store_true",
+        default=False,
+        help="Use gradual background stress boundary condition.",
+    )
+    parser.add_argument(
+        "--instant-bc",
+        action="store_true",
+        default=False,
+        help="Use instant background stress boundary condition.",
+    )
 
     args = parser.parse_args()
 
     # Validate that exactly one flag is provided
-    if args.with_reference_states and args.without_reference_states:
-        parser.error(
-            "Cannot specify both --with-reference-states and --without-reference-states"
-        )
-    if not args.with_reference_states and not args.without_reference_states:
+    if not (args.with_reference_states + args.without_reference_states) == 1:
         parser.error(
             "Must specify either --with-reference-states or --without-reference-states"
         )
+    if not (args.gradual_bc + args.instant_bc) == 1:
+        parser.error("Must specify either --gradual-bc or --instant-bc")
 
     use_reference_states = args.with_reference_states
+    use_gradual_bc = args.gradual_bc
 
     # Create model and run
-    model_class = create_model_class(use_reference_states)
-    model_params = define_model_params()
+    model_class = create_model_class(use_reference_states, use_gradual_bc)
+    model_params = define_model_params(use_reference_states, use_gradual_bc)
     model = model_class(model_params)
 
     solver_params = define_solver_params()

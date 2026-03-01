@@ -33,7 +33,14 @@ def create_model_class(use_reference: bool, use_gradual_bc: bool) -> type:
     return Model
 
 
-def define_model_params() -> dict:
+def create_folder_name(use_reference: bool, use_gradual_bc: bool) -> str:
+    """Create folder name based on selected options."""
+    ref_str = "with_ref" if use_reference else "no_ref"
+    bc_str = "gradual_bc" if use_gradual_bc else "instant_bc"
+    return f"output/example1_{ref_str}_{bc_str}"
+
+
+def define_model_params(use_reference: bool, use_gradual_bc: bool) -> dict:
     """Define hardcoded model parameters."""
     return {
         "csv_file": "salt_cove_fractures.csv",
@@ -73,8 +80,8 @@ def define_model_params() -> dict:
             iter_max=100,
         ),
         "units": pp.Units(kg=16.8 * pp.GIGA, m=1.0, s=1.0),
-        "solver_statistics_file": "solver_statistics.json",
-        "folder_name": "output/example1",
+        "solver_statistics_file_name": "solver_statistics.json",
+        "folder_name": create_folder_name(use_reference, use_gradual_bc),
     }
 
 
@@ -130,7 +137,7 @@ def main():
 
     # Create model and run
     model_class = create_model_class(use_reference, use_gradual_bc)
-    model_params = define_model_params()
+    model_params = define_model_params(use_reference, use_gradual_bc)
     model = model_class(model_params)
 
     solver_params = define_solver_params()
