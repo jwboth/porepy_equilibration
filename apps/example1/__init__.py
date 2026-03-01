@@ -2,29 +2,39 @@
 
 from __future__ import annotations
 
+import argparse
 import porepy as pp
-from porepy.viz.data_saving_model_mixin import IterationExporting
-# from porepy_equilibration.bc import TensileBackgroundStress2D as BC
-from porepy_equilibration.bc import GradualTensileBackgroundStress2D as BC
+from porepy_equilibration.bc import GradualTensileBackgroundStress2D as BC1
+from porepy_equilibration.bc import TensileBackgroundStress2D as BC2
 from porepy_equilibration.geometry import SaltCove as Geometry
-from porepy_equilibration.model import MechanicsModel as Physics
-
-# from porepy_equilibration.bc import RotatingTensileBackgroundStress2D as BC
-
-# from porepy_equilibration.model import MechanicsModelWithReference as Physics
+from porepy_equilibration.model import MechanicsModel as PhysicsNoRef
+from porepy_equilibration.model import MechanicsModelWithReference as PhysicsRef
 
 
+def create_model_class(use_reference: bool, use_gradual_bc: bool) -> type:
+    """Factory function to create model class with selected BC.
 
-class Model(
-    # IterationExporting,
-    Geometry,
-    BC,
-    Physics,
-):
-    """Model for the 2D Salt Cove outcrop simulation under compression."""
+    Parameters:
+        use_gradual_bc: If True, uses GradualTensileBackgroundStress2D;
+                        if False, uses TensileBackgroundStress2D.
+
+    Returns:
+        A model class combining geometry, BC, and physics.
+    """
+    bc_class = BC1 if use_gradual_bc else BC2
+
+    physics_class = PhysicsRef if use_reference else PhysicsNoRef
+
+    class Model(Geometry, bc_class, physics_class):
+        """Model for 2D Salt Cove outcrop under compression."""
+
+        pass
+
+    return Model
 
 
-def define_model_params():
+def define_model_params() -> dict:
+    """Define hardcoded model parameters."""
     return {
         "csv_file": "salt_cove_fractures.csv",
         "material_constants": {
@@ -40,7 +50,6 @@ def define_model_params():
                     "lame_lambda": 19.73 * pp.GIGA,
                     "density": 2653,
                     "friction_coefficient": 0.6,
-                    # "well_radius": 0.10,
                 }
             ),
             "fluid": pp.FluidComponent(*{}),
@@ -69,16 +78,64 @@ def define_model_params():
     }
 
 
-def define_solver_params():
+def define_solver_params() -> dict:
+    """Define solver parameters."""
     return {"nl_max_iterations": 100}
 
 
 def main():
-    """Run single simulation."""
+    """Run single simulation with command-line argument parsing."""
+    parser = argparse.ArgumentParser(
+        description="2D Salt Cove outcrop simulation under compression.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=("Examples:\n  example1 --gradual-bc\n  example1 --instant-bc"),
+    )
+    parser.add_argument(
+        "--with-reference-states",
+        action="store_true",
+        default=False,
+        help="Use reference states in the model.",
+    )
+    parser.add_argument(
+        "--without-reference-states",
+        action="store_true",
+        default=False,
+        help="Do not use reference states in the model.",
+    )
+    parser.add_argument(
+        "--gradual-bc",
+        action="store_true",
+        default=False,
+        help="Use gradual tensile background stress BC.",
+    )
+    parser.add_argument(
+        "--instant-bc",
+        action="store_true",
+        default=False,
+        help="Use instant tensile background stress BC.",
+    )
+
+    args = parser.parse_args()
+
+    # Validate that exactly one flag is provided
+    if not (args.with_reference_states + args.without_reference_states) == 1:
+        parser.error(
+            "Must specify either --with-reference-states or --without-reference-states"
+        )
+    if not (args.gradual_bc + args.instant_bc) == 1:
+        parser.error("Must specify either --gradual-bc or --instant-bc")
+
+    use_reference = args.with_reference_states
+    use_gradual_bc = args.gradual_bc
+
+    # Create model and run
+    model_class = create_model_class(use_reference, use_gradual_bc)
     model_params = define_model_params()
-    model = Model(model_params)
+    model = model_class(model_params)
+
     solver_params = define_solver_params()
     pp.run_time_dependent_model(model, solver_params)
+
     print("Simulation completed.")
     print("Solver statistics:")
     print(model.nonlinear_solver_statistics.num_iterations_history)
