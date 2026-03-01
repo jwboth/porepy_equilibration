@@ -1,7 +1,8 @@
 """Generic geometry class for reading SVG files and extracting fractures."""
 
-import porepy as pp
 from pathlib import Path
+
+import porepy as pp
 
 
 class SaltCove:

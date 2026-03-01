@@ -1,6 +1,7 @@
 from typing import Callable
 
 import numpy as np
+
 import porepy as pp
 
 

@@ -1,10 +1,10 @@
 from functools import partial
+from typing import TypeVar
 
 import numpy as np
-import porepy as pp
-
-from typing import TypeVar
 from porepy.numerics.ad.forward_mode import AdArray
+
+import porepy as pp
 
 FloatType = TypeVar("FloatType", AdArray, np.ndarray, float)
 

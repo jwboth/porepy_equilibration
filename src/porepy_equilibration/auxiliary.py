@@ -1,6 +1,7 @@
 from functools import partial
 
 import numpy as np
+
 import porepy as pp
 
 

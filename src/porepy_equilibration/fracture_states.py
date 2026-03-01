@@ -1,13 +1,12 @@
 """Compute states of each fracture cell."""
 
+import logging
+from enum import IntEnum
 from functools import partial
 
 import numpy as np
-import logging
 
 import porepy as pp
-
-from enum import IntEnum
 
 logger = logging.getLogger(__name__)
 
