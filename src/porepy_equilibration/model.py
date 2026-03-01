@@ -1,11 +1,15 @@
-from porepy.models.with_reference.fluid_mass_balance import \
-    SinglePhaseFlow as SinglePhaseFlowWithReference
-from porepy.models.with_reference.momentum_balance import \
-    MomentumBalance as MomentumBalanceWithReference
-from porepy.models.with_reference.poromechanics import \
-    Poromechanics as PoromechanicsWithReference
-from porepy.models.with_reference.solution_strategy import \
-    NewtonReferenceUpdateStrategy as UpdateStrategy
+from porepy.models.with_reference.fluid_mass_balance import (
+    SinglePhaseFlow as SinglePhaseFlowWithReference,
+)
+from porepy.models.with_reference.momentum_balance import (
+    MomentumBalance as MomentumBalanceWithReference,
+)
+from porepy.models.with_reference.poromechanics import (
+    Poromechanics as PoromechanicsWithReference,
+)
+from porepy.models.with_reference.solution_strategy import (
+    NewtonReferenceUpdateStrategy as UpdateStrategy,
+)
 from porepy.viz.data_saving_model_mixin import FractureDeformationExporting
 
 import porepy as pp
@@ -36,7 +40,7 @@ class MechanicsModel(
 
 class MechanicsModelWithReference(
     # AlartCurnierContact,
-    BipotentialOrthogonalReturnContact,
+    # BipotentialOrthogonalReturnContact,
     CommonIngredients,
     UpdateStrategy,
     MomentumBalanceWithReference,
@@ -45,20 +49,20 @@ class MechanicsModelWithReference(
 
 
 class PoromechanicsModel(
+    # AlartCurnierContact,
+    # BipotentialOrthogonalReturnContact,
     CommonIngredients,
     pp.constitutive_laws.CubicLawPermeability,
-    # AlartCurnierContact,
-    BipotentialOrthogonalReturnContact,
     pp.poromechanics.Poromechanics,
 ):
     """Base poromechanics model."""
 
 
 class PoromechanicsModelWithReference(
+    # AlartCurnierContact,
+    # BipotentialOrthogonalReturnContact,
     CommonIngredients,
     pp.constitutive_laws.CubicLawPermeability,
-    # AlartCurnierContact,
-    BipotentialOrthogonalReturnContact,
     UpdateStrategy,
     PoromechanicsWithReference,
 ):
