@@ -1,8 +1,8 @@
 services:
   example1:
     build: .
-    # Mount the host's ./visualization directory into the container so that
-    # any output files produced by apps.example1 are immediately available on
-    # the host after the run completes.
+    # Mount the host's ./output directory into the container so that
+    # any output files produced by the example runs are immediately available
+    # on the host after the container exits.
     volumes:
-      - ./visualization:/work/visualization
+      - ./output:/work/output

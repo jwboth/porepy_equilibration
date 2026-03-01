@@ -108,18 +108,28 @@ docker build -t porepy-equilibration .
 
 ### 3. Run the container
 
-Run `apps.example1` and write any output files produced under `visualization/`
-to the **host** directory `./visualization` via a bind-mount:
+Run all four `example1` variants in sequence. Output is written to
+`/work/output` inside the container; bind-mount the host's `./output`
+directory to get the files locally:
 
 ```bash
-mkdir -p visualization
+mkdir -p output
 docker run --rm \
-  -v "$PWD/visualization:/work/visualization" \
+  -v "$PWD/output:/work/output" \
   porepy-equilibration
 ```
 
-After the container exits, `./visualization/` on the host will contain any
-files that `apps.example1` wrote to `/work/visualization` inside the container.
+The container runs the following commands in order:
+
+```
+python -m example1 --with-reference-state --gradual-bc
+python -m example1 --with-reference-state --instant-bc
+python -m example1 --with-reference-state --instant-bc
+python -m example1 --without-reference-state --instant-bc
+```
+
+After the container exits, `./output/` on the host will contain all
+generated subfolders and files.
 
 ### 4. Run with Docker Compose (alternative)
 
@@ -127,18 +137,11 @@ files that `apps.example1` wrote to `/work/visualization` inside the container.
 docker compose up --build
 ```
 
-The `docker-compose.yml` file already includes the `./visualization` bind-mount.
+The `docker-compose.yml` file already includes the `./output` bind-mount.
 
 ### Environment variables
 
-No environment variables are required for the default run.  Custom flags can
-be appended after the image name and are forwarded verbatim to
-`python -m apps.example1`:
-
-```bash
-docker run --rm -v "$PWD/visualization:/work/visualization" \
-  porepy-equilibration --some-flag
-```
+No environment variables are required.
 
 ## Development
 

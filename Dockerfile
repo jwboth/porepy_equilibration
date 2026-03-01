@@ -22,8 +22,8 @@ RUN git submodule update --init --recursive
 # Install all project dependencies (including the local porepy editable install)
 RUN uv sync
 
-# Create the visualization output directory so it is ready for a bind-mount
-RUN mkdir -p /work/visualization
+# Create the output directory so it is ready for a bind-mount
+RUN mkdir -p /work/output
 
 RUN chmod +x /work/entrypoint.sh
 

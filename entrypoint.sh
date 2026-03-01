@@ -1,8 +1,11 @@
 #!/bin/sh
 set -e
 
-# Ensure the visualization output directory exists (important when the
-# directory is bind-mounted from the host and may not have been created yet).
-mkdir -p /work/visualization
+# Ensure the output directory exists (important when the directory is
+# bind-mounted from the host and may not have been created yet).
+mkdir -p /work/output
 
-exec uv run python -m apps.example1 "$@"
+uv run python -m example1 --with-reference-state --gradual-bc
+uv run python -m example1 --with-reference-state --instant-bc
+uv run python -m example1 --with-reference-state --instant-bc
+uv run python -m example1 --without-reference-state --instant-bc
