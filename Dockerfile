@@ -6,6 +6,7 @@ FROM python:3.13-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
         build-essential \
+        libglu1-mesa \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv (fast Python package manager)
