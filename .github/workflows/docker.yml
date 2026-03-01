@@ -36,7 +36,7 @@ jobs:
 
       - name: Run apps.example1 smoke test
         run: |
-          mkdir -p visualization
+          mkdir -p output
           docker run --rm \
-            -v "$PWD/visualization:/work/visualization" \
+            -v "$PWD/output:/work/output" \
             porepy-equilibration:ci

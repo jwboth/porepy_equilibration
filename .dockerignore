@@ -31,7 +31,7 @@ htmlcov/
 Thumbs.db
 
 # ----- Output that should not be baked into the image -----
-visualization/
+output/
 
 # ----- CI / tooling caches -----
 .ruff_cache/
