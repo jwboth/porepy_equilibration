@@ -1,5 +1,5 @@
 services:
-  example1:
+  simulation:
     build: .
     # Mount the host's ./output directory into the container so that
     # any output files produced by the example runs are immediately available

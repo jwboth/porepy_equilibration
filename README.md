@@ -108,7 +108,7 @@ docker build -t porepy-equilibration .
 
 ### 3. Run the container
 
-Run all four `example1` variants in sequence. Output is written to
+Run all four `example2` variants in sequence. Output is written to
 `/work/output` inside the container; bind-mount the host's `./output`
 directory to get the files locally:
 
@@ -122,10 +122,10 @@ docker run --rm \
 The container runs the following commands in order:
 
 ```
-uv run python -m example1 --with-reference-states --gradual-bc
-uv run python -m example1 --with-reference-states --instant-bc
-uv run python -m example2 --with-reference-states --instant-bc
 uv run python -m example2 --without-reference-states --instant-bc
+uv run python -m example2 --with-reference-states --instant-bc
+uv run python -m example2 --with-reference-states --instant-bc --low-friction
+uv run python -m example2 --with-reference-states --instant-bc --no-friction
 ```
 
 After the container exits, `./output/` on the host will contain all
