@@ -16,7 +16,6 @@ import porepy as pp
 
 from .auxiliary import AuxiliaryContact
 from .contact import AlartCurnierContact
-from .contact_mechanics_bipotential import BipotentialOrthogonalReturnContact
 from .fracture_states import FractureStates
 
 
@@ -31,7 +30,6 @@ class CommonIngredients(
 
 class MechanicsModel(
     AlartCurnierContact,
-    # BipotentialOrthogonalReturnContact,
     CommonIngredients,
     pp.momentum_balance.MomentumBalance,
 ):
@@ -40,7 +38,6 @@ class MechanicsModel(
 
 class MechanicsModelWithReference(
     AlartCurnierContact,
-    # BipotentialOrthogonalReturnContact,
     CommonIngredients,
     UpdateStrategy,
     MomentumBalanceWithReference,
@@ -50,7 +47,6 @@ class MechanicsModelWithReference(
 
 class PoromechanicsModel(
     # AlartCurnierContact,
-    # BipotentialOrthogonalReturnContact,
     CommonIngredients,
     pp.constitutive_laws.CubicLawPermeability,
     pp.poromechanics.Poromechanics,
@@ -60,7 +56,6 @@ class PoromechanicsModel(
 
 class PoromechanicsModelWithReference(
     # AlartCurnierContact,
-    # BipotentialOrthogonalReturnContact,
     CommonIngredients,
     pp.constitutive_laws.CubicLawPermeability,
     UpdateStrategy,
