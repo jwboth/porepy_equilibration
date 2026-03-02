@@ -37,7 +37,36 @@ class InitMech:
         return combined_eq
 
 
-def create_model_class(use_reference_states: bool, use_gradual_bc: bool) -> type:
+class IncreasingFriction:
+    """Mixin to increase friction coefficient during the simulation."""
+
+    time_manager: pp.TimeManager
+
+    def friction_coefficient(self, subdomains: list[pp.Grid]) -> pp.ad.Operator:
+        """Friction coefficient [-].
+
+        Parameters:
+            subdomains: List of fracture subdomains.
+
+        Returns:
+            Friction coefficient operator.
+
+        """
+        self.fixed_friction_coefficient = pp.ad.Scalar(
+            self.solid.friction_coefficient, "fixed_friction_coefficient"
+        )
+        return self.fixed_friction_coefficient
+
+    def before_nonlinear_loop(self) -> None:
+        """Increase friction coefficient before each nonlinear loop."""
+        super().before_nonlinear_loop()
+        if self.time_manager.time_index == 3:  # Increase friction after 3 time steps
+            self.fixed_friction_coefficient.set_value(0.6)
+
+
+def create_model_class(
+    use_reference_states: bool, use_gradual_bc: bool, use_low_friction: bool
+) -> type:
     """Factory function to create model class with selected physics.
 
     Parameters:
@@ -57,25 +86,60 @@ def create_model_class(use_reference_states: bool, use_gradual_bc: bool) -> type
     else:
         gravity_class = Gravity
 
-    class Model(
-        InitMech, Geometry, CustomSolverStatistics, gravity_class, physics_class
-    ):
-        """Model for 2D Salt Cove outcrop under gravity."""
+    if use_low_friction:
 
-        pass
+        class Model(
+            InitMech,
+            IncreasingFriction,
+            Geometry,
+            CustomSolverStatistics,
+            gravity_class,
+            physics_class,
+        ):
+            """Model for 2D Salt Cove outcrop under gravity with low friction."""
+
+            pass
+    else:
+
+        class Model(
+            InitMech, Geometry, CustomSolverStatistics, gravity_class, physics_class
+        ):
+            """Model for 2D Salt Cove outcrop under gravity."""
+
+            pass
 
     return Model
 
 
-def create_folder_name(use_reference_states: bool, use_gradual_bc: bool) -> str:
+def create_folder_name(
+    use_reference_states: bool,
+    use_gradual_bc: bool,
+    use_lower_friction: bool,
+    use_no_friction: bool,
+) -> str:
     """Create folder name based on selected options."""
     ref_str = "with_ref" if use_reference_states else "no_ref"
     bc_str = "gradual_bc" if use_gradual_bc else "instant_bc"
-    return f"output/example2_{ref_str}_{bc_str}"
+    friction = "_low_friction" if use_lower_friction else ""
+    no_friction = "_no_friction" if use_no_friction else ""
+    return f"output/example2_{ref_str}_{bc_str}{friction}{no_friction}"
 
 
-def define_model_params(use_reference_states: bool, use_gradual_bc: bool) -> dict:
+def define_model_params(
+    use_reference_states: bool,
+    use_gradual_bc: bool,
+    use_low_friction: bool,
+    use_no_friction: bool,
+) -> dict:
     """Define hardcoded model parameters."""
+
+    if use_no_friction:
+        friction_coefficient = 0.0
+    elif use_low_friction:
+        friction_coefficient = 0.5
+    else:
+        friction_coefficient = 0.6
+
     return {
         "csv_file": "salt_cove_fractures.csv",
         "material_constants": {
@@ -90,7 +154,7 @@ def define_model_params(use_reference_states: bool, use_gradual_bc: bool) -> dic
                     "shear_modulus": 16.8 * pp.GIGA,
                     "lame_lambda": 19.73 * pp.GIGA,
                     "density": 2653,
-                    "friction_coefficient": 0.6,
+                    "friction_coefficient": friction_coefficient,
                 }
             ),
             "fluid": pp.FluidComponent(**water),
@@ -112,7 +176,9 @@ def define_model_params(use_reference_states: bool, use_gradual_bc: bool) -> dic
         ),
         "units": pp.Units(kg=16.8 * pp.GIGA, m=1.0, s=1.0),
         "solver_statistics_file_name": "solver_statistics.json",
-        "folder_name": create_folder_name(use_reference_states, use_gradual_bc),
+        "folder_name": create_folder_name(
+            use_reference_states, use_gradual_bc, use_low_friction, use_no_friction
+        ),
     }
 
 
@@ -156,6 +222,18 @@ def main():
         default=False,
         help="Use instant background stress boundary condition.",
     )
+    parser.add_argument(
+        "--low-friction",
+        action="store_true",
+        default=False,
+        help="Use lower friction coefficient (0.5 instead of 0.6).",
+    )
+    parser.add_argument(
+        "--no-friction",
+        action="store_true",
+        default=False,
+        help="Use no friction (friction coefficient set to 0).",
+    )
 
     args = parser.parse_args()
 
@@ -169,10 +247,16 @@ def main():
 
     use_reference_states = args.with_reference_states
     use_gradual_bc = args.gradual_bc
+    use_low_friction = args.low_friction
+    use_no_friction = args.no_friction
 
     # Create model and run
-    model_class = create_model_class(use_reference_states, use_gradual_bc)
-    model_params = define_model_params(use_reference_states, use_gradual_bc)
+    model_class = create_model_class(
+        use_reference_states, use_gradual_bc, use_low_friction
+    )
+    model_params = define_model_params(
+        use_reference_states, use_gradual_bc, use_low_friction, use_no_friction
+    )
     model = model_class(model_params)
 
     solver_params = define_solver_params()
