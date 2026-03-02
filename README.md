@@ -122,10 +122,10 @@ docker run --rm \
 The container runs the following commands in order:
 
 ```
-python -m example1 --with-reference-state --gradual-bc
-python -m example1 --with-reference-state --instant-bc
-python -m example1 --with-reference-state --instant-bc
-python -m example1 --without-reference-state --instant-bc
+uv run python -m example1 --with-reference-states --gradual-bc
+uv run python -m example1 --with-reference-states --instant-bc
+uv run python -m example2 --with-reference-states --instant-bc
+uv run python -m example2 --without-reference-states --instant-bc
 ```
 
 After the container exits, `./output/` on the host will contain all
