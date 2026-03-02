@@ -23,6 +23,7 @@ on:
 jobs:
   docker-smoke-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     permissions:
       contents: read
     steps:
@@ -34,9 +35,9 @@ jobs:
       - name: Build Docker image
         run: docker build -t porepy-equilibration:ci .
 
-      - name: Run apps.example1 smoke test
+      - name: Run entrypoint (all example2 variants)
         run: |
+          mkdir -p output
           docker run --rm \
-            --entrypoint /work/.venv/bin/python \
-            porepy-equilibration:ci \
-            -c "import porepy as pp; import porepy_equilibration; print('imports OK')"
+            -v "$PWD/output:/work/output" \
+            porepy-equilibration:ci
