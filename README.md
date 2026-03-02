@@ -61,12 +61,36 @@ Or, using the uv-managed virtual environment directly:
 uv run python -m example1
 ```
 
+**Example 2:**
+
+`example2` accepts several CLI flags that control the simulation setup:
+
+- `--with-reference-states` / `--without-reference-states` – enable or disable the use of reference states for initialization.
+- `--instant-bc` / `--gradual-bc` – apply boundary conditions instantly or ramp them up gradually.
+- `--low-friction` – use a low-friction contact model.
+- `--no-friction` – use a frictionless contact model.
+
+```bash
+python -m example2 --without-reference-states --instant-bc
+python -m example2 --with-reference-states --instant-bc
+python -m example2 --with-reference-states --instant-bc --low-friction
+python -m example2 --with-reference-states --instant-bc --no-friction
+```
+
+Or, using the uv-managed virtual environment directly:
+
+```bash
+uv run python -m example2 --with-reference-states --instant-bc
+```
+
 ## Project structure
 
 ```
 porepy_equilibration/
 ├── apps/
-│   └── example1/          # Example application (python -m example1)
+│   ├── example1/          # Example 1 application (python -m example1)
+│   ├── example2/          # Example 2 application (python -m example2)
+│   └── example3/          # Example 3 application (python -m example3)
 ├── external/
 │   └── porepy/            # PorePy git submodule (https://github.com/pmgbergen/porepy)
 ├── src/

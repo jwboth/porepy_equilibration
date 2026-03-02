@@ -20,7 +20,7 @@ example2 = "apps.example2:main"
 example3 = "apps.example3:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/porepy_equilibration", "apps/example1"]
+packages = ["src/porepy_equilibration", "apps/example1", "apps/example2", "apps/example3"]
 
 [tool.uv.sources]
 porepy = { path = "external/porepy", editable = true }
