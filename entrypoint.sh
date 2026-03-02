@@ -7,5 +7,5 @@ mkdir -p /work/output
 
 uv run python -m example1 --with-reference-states --gradual-bc
 uv run python -m example1 --with-reference-states --instant-bc
-uv run python -m example1 --with-reference-states --instant-bc
-uv run python -m example1 --without-reference-states --instant-bc
+uv run python -m example2 --with-reference-states --instant-bc
+uv run python -m example2 --without-reference-states --instant-bc
