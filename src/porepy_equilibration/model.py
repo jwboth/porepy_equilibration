@@ -30,7 +30,7 @@ class CommonIngredients(
 
 
 class MechanicsModel(
-    # AlartCurnierContact,
+    AlartCurnierContact,
     # BipotentialOrthogonalReturnContact,
     CommonIngredients,
     pp.momentum_balance.MomentumBalance,
@@ -39,7 +39,7 @@ class MechanicsModel(
 
 
 class MechanicsModelWithReference(
-    # AlartCurnierContact,
+    AlartCurnierContact,
     # BipotentialOrthogonalReturnContact,
     CommonIngredients,
     UpdateStrategy,
